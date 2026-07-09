@@ -1470,7 +1470,198 @@ body {
 }
 
 /* ---------------------------------------------------- */
-/* 🖨️ PRINT STYLE SHEET (Perfect A4 PDF Export) */
+/* 📱 MOBILE RESPONSIVE LAYOUT                          */
+/* ---------------------------------------------------- */
+
+/* Tablet: narrow controls */
+@media (max-width: 900px) {
+  .control-panel {
+    flex: 0 0 320px;
+  }
+}
+
+/* Mobile: vertical stack, preview fixed at top */
+@media (max-width: 768px) {
+
+  /* Slim sticky header */
+  .app-header {
+    position: sticky;
+    top: 0;
+    z-index: 200;
+  }
+
+  .header-content {
+    padding: 0.6rem 0.75rem;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  /* Mode selector compact */
+  .doc-mode-selector {
+    order: -1;
+    flex: 1 0 auto;
+  }
+
+  .mode-btn {
+    padding: 0.35rem 0.9rem;
+    font-size: 0.8rem;
+  }
+
+  /* Header buttons: icon only on small screens */
+  .header-actions {
+    gap: 0.3rem;
+    flex-wrap: nowrap;
+    order: 2;
+  }
+
+  .header-actions button,
+  .header-actions a {
+    padding: 0.45rem 0.6rem !important;
+    font-size: 0 !important;          /* hide text */
+    gap: 0 !important;
+    min-width: 36px;
+    justify-content: center;
+  }
+
+  /* Show emoji icons only */
+  .header-actions button::before,
+  .header-actions a::before {
+    font-size: 1.1rem;
+  }
+
+  /* Individual icon labels via data-icon trick — keep emoji in button text but hide text node */
+  #btn-save-doc   { font-size: 0 !important; }
+  #btn-print      { font-size: 0 !important; }
+  #btn-history-page { font-size: 0 !important; }
+  #btn-supabase-settings { font-size: 1rem !important; } /* ⚙️ already icon only */
+  #btn-logout     { font-size: 0 !important; }
+
+  /* Workspace: vertical flex */
+  .workspace-container {
+    flex-direction: column;
+    height: auto !important;
+    padding: 0;
+    gap: 0;
+  }
+
+  /* Preview panel: sticky below header, compact height */
+  .preview-panel {
+    order: -1;
+    position: sticky;
+    top: 57px;              /* below sticky header */
+    z-index: 100;
+    height: 42vw;           /* enough to show scaled A4 */
+    min-height: 220px;
+    max-height: 300px;
+    overflow: hidden;
+    border-radius: 0;
+    padding: 0.5rem 0.5rem 0;
+    background: #eceae4;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+  }
+
+  .preview-scroll-wrapper {
+    justify-content: center;
+    align-items: flex-start;
+    overflow: hidden;
+    height: 100%;
+  }
+
+  /* Scale down A4 sheet to fit mobile preview area */
+  .a4-sheet {
+    transform-origin: top center;
+    transform: scale(0.28);
+    width: 210mm;
+    min-height: 297mm;
+    margin-top: 0;
+    /* prevent layout shift */
+    flex-shrink: 0;
+  }
+
+  /* Control panel: full width below preview */
+  .control-panel {
+    flex: none;
+    width: 100%;
+    max-height: none;
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+    border-top: 2px solid var(--color-gold);
+    padding: 1rem;
+    overflow-y: visible;
+    box-shadow: none;
+  }
+
+  /* Mobile action bar at bottom of control panel */
+  #mobile-action-bar {
+    display: flex !important;
+    gap: 0.6rem;
+    padding: 1rem 0 0.5rem;
+    border-top: 1px solid var(--color-cream);
+    margin-top: 1rem;
+  }
+
+  #mobile-action-bar .mob-btn {
+    flex: 1;
+    padding: 0.75rem 0.5rem;
+    font-size: 0.88rem;
+    font-weight: 600;
+    border-radius: 8px;
+    cursor: pointer;
+    text-align: center;
+    border: none;
+    transition: all 0.2s;
+  }
+
+  #mobile-action-bar .mob-btn-save {
+    background: #e8f0fe;
+    color: #1a73e8;
+    border: 1px solid #d2e3fc;
+  }
+
+  #mobile-action-bar .mob-btn-pdf {
+    background: var(--color-green);
+    color: white;
+  }
+
+  /* Inputs full width */
+  .controls-section input[type="text"],
+  .controls-section input[type="number"],
+  .controls-section input[type="date"],
+  .controls-section textarea,
+  .controls-section select {
+    font-size: 16px; /* Prevent iOS zoom on focus */
+  }
+
+  /* Tighten section spacing */
+  .panel-title {
+    font-size: 1rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .form-group {
+    margin-bottom: 0.75rem;
+  }
+
+  /* Toast: bottom center on mobile */
+  .toast-container {
+    top: auto;
+    bottom: 1rem;
+    right: 50%;
+    transform: translateX(50%);
+    align-items: center;
+    width: 90%;
+  }
+
+  /* Modal: full width */
+  .modal-card {
+    width: 96%;
+    padding: 1.25rem;
+  }
+}
+
+/* ---------------------------------------------------- */
+/* 🖨️ PRINT STYLE SHEET (Perfect A4 PDF Export)        */
 /* ---------------------------------------------------- */
 @media print {
   /* Set A4 sizing */

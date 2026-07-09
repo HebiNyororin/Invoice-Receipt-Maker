@@ -53,6 +53,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Set up history module controls
   document.getElementById('btn-save-doc').addEventListener('click', saveCurrentDocument);
+
+  // Mobile action bar buttons (mirror header buttons)
+  const mobSave = document.getElementById('mob-btn-save');
+  const mobPdf  = document.getElementById('mob-btn-pdf');
+  if (mobSave) mobSave.addEventListener('click', () => document.getElementById('btn-save-doc').click());
+  if (mobPdf)  mobPdf.addEventListener('click',  () => document.getElementById('btn-print').click());
   
   // Load and render history logs (local server sync when available)
   initHistoryAndAutoNumbers();
