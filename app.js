@@ -55,7 +55,14 @@ document.addEventListener('DOMContentLoaded', () => {
     // ブラウザが再描画（等倍A4へのスタイル適用）を完了するのを待つ (350ms)
     setTimeout(async () => {
       try {
-        await html2pdf().set(opt).from(element).save();
+        // html2pdfのプロミスクエリを使い、出力直前に1ページ目以外をすべて削除する
+        await html2pdf().set(opt).from(element).toPdf().get('pdf').then((pdf) => {
+          const totalPages = pdf.internal.getNumberOfPages();
+          for (let i = totalPages; i > 1; i--) {
+            pdf.deletePage(i);
+          }
+        }).save();
+        
         showToast(`📄 ${filename} をダウンロードしました！`);
       } catch(e) {
         console.error('PDF generation failed:', e);
