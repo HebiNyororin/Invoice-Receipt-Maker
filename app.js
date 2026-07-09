@@ -19,29 +19,20 @@ document.addEventListener('DOMContentLoaded', () => {
     // アクティブなプレビュー要素を取得
     const mode = document.querySelector('input[name="doc-mode"]:checked')?.value || 'invoice';
     const previewId = mode === 'invoice' ? 'invoice-preview' : 'receipt-preview';
-    const originalElement = document.getElementById(previewId);
-    if (!originalElement) return;
+    const element = document.getElementById(previewId);
+    if (!element) return;
 
-    // クローンを作成して、スマホでの縮小(scale)や余計なスタイルを解除する
-    const element = originalElement.cloneNode(true);
-    element.style.transform = 'none';
-    element.style.margin = '0';
-    element.style.position = 'absolute';
-    element.style.left = '-9999px';
-    element.style.top = '-9999px';
-    element.style.width = '210mm';
-    element.style.height = '297mm';
-    element.style.minHeight = '297mm';
-    element.style.boxShadow = 'none';
-    element.style.border = 'none';
-    element.style.boxSizing = 'border-box';
-    element.style.padding = '20mm';
-    element.style.backgroundColor = '#ffffff';
-    element.style.display = 'flex';
-    element.style.flexDirection = 'column';
-    
-    // 一時的にbodyに追加
-    document.body.appendChild(element);
+    // 現在の元のスタイルを保存
+    const originalTransform = element.style.transform;
+    const originalMargin     = element.style.margin;
+    const originalBoxShadow  = element.style.boxShadow;
+    const originalBorder     = element.style.border;
+
+    // PDF出力用に一時的に等倍・余白なしにスタイルを上書き
+    element.style.transform  = 'none';
+    element.style.margin     = '0';
+    element.style.boxShadow  = 'none';
+    element.style.border     = 'none';
 
     // ファイル名：宛名＋書類種別＋日付
     const toName = (mode === 'invoice'
@@ -58,9 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
       html2canvas:  { 
         scale: 2, 
         useCORS: true, 
-        letterRendering: true,
-        scrollX: 0,
-        scrollY: 0
+        letterRendering: true
       },
       jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
@@ -73,8 +62,11 @@ document.addEventListener('DOMContentLoaded', () => {
       console.error('PDF generation failed:', e);
       showToast('PDF の生成に失敗しました。');
     } finally {
-      // クローンを削除
-      element.remove();
+      // 元のスタイルに戻す
+      element.style.transform = originalTransform;
+      element.style.margin     = originalMargin;
+      element.style.boxShadow  = originalBoxShadow;
+      element.style.border     = originalBorder;
     }
   });
 
