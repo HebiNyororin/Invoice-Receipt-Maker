@@ -22,17 +22,40 @@ document.addEventListener('DOMContentLoaded', () => {
     const element = document.getElementById(previewId);
     if (!element) return;
 
-    // 現在の元のスタイルを保存
+    // 元の位置とスタイルを記憶
+    const parent = element.parentNode;
+    const nextSibling = element.nextSibling;
+    
     const originalTransform = element.style.transform;
-    const originalMargin     = element.style.margin;
-    const originalBoxShadow  = element.style.boxShadow;
+    const originalPosition  = element.style.position;
+    const originalLeft      = element.style.left;
+    const originalTop       = element.style.top;
+    const originalZIndex    = element.style.zIndex;
+    const originalWidth     = element.style.width;
+    const originalHeight    = element.style.height;
+    const originalMinHeight = element.style.minHeight;
+    const originalBoxShadow = element.style.boxShadow;
     const originalBorder     = element.style.border;
+    const originalPadding    = element.style.padding;
+    const originalBoxSizing  = element.style.boxSizing;
+    const originalBgColor    = element.style.backgroundColor;
 
-    // PDF出力用に一時的に等倍・余白なしにスタイルを上書き
+    // PDF生成用に一時的にbody直下に配置し、完全に独立したA4スタイルを強制
     element.style.transform  = 'none';
-    element.style.margin     = '0';
+    element.style.position   = 'fixed';
+    element.style.left       = '0';
+    element.style.top        = '0';
+    element.style.zIndex     = '99999';
+    element.style.width      = '210mm';
+    element.style.height     = '297mm';
+    element.style.minHeight  = '297mm';
     element.style.boxShadow  = 'none';
     element.style.border     = 'none';
+    element.style.padding    = '20mm';
+    element.style.boxSizing  = 'border-box';
+    element.style.backgroundColor = '#ffffff';
+
+    document.body.appendChild(element);
 
     // ファイル名：宛名＋書類種別＋日付
     const toName = (mode === 'invoice'
@@ -49,7 +72,9 @@ document.addEventListener('DOMContentLoaded', () => {
       html2canvas:  { 
         scale: 2, 
         useCORS: true, 
-        letterRendering: true
+        letterRendering: true,
+        scrollX: 0,
+        scrollY: 0
       },
       jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
@@ -64,9 +89,23 @@ document.addEventListener('DOMContentLoaded', () => {
     } finally {
       // 元のスタイルに戻す
       element.style.transform = originalTransform;
-      element.style.margin     = originalMargin;
-      element.style.boxShadow  = originalBoxShadow;
+      element.style.position  = originalPosition;
+      element.style.left      = originalLeft;
+      element.style.top       = originalTop;
+      element.style.zIndex    = originalZIndex;
+      element.style.width      = originalWidth;
+      element.style.height     = originalHeight;
+      element.style.minHeight = originalMinHeight;
+      element.style.boxShadow = originalBoxShadow;
       element.style.border     = originalBorder;
+      element.style.padding    = originalPadding;
+      element.style.boxSizing  = originalBoxSizing;
+      element.style.backgroundColor = originalBgColor;
+
+      // 元のHTMLツリー位置に差し戻す
+      if (parent) {
+        parent.insertBefore(element, nextSibling);
+      }
     }
   });
 

@@ -93,12 +93,12 @@
 
           <div class="form-group">
             <label for="inv-to-name">宛名（様）</label>
-            <input type="text" id="inv-to-name" placeholder="" value="山田太郎">
+            <input type="text" id="inv-to-name" placeholder="" value="">
           </div>
 
           <div class="form-group">
             <label for="inv-subject">件名</label>
-            <input type="text" id="inv-subject" placeholder="" value="システム開発およびデザイン制作">
+            <input type="text" id="inv-subject" placeholder="" value="">
           </div>
 
           <fieldset class="form-fieldset">
@@ -160,22 +160,22 @@
 
           <div class="form-group">
             <label for="rcpt-to-name">宛名（様）</label>
-            <input type="text" id="rcpt-to-name" placeholder="" value="佐々木 里桜">
+            <input type="text" id="rcpt-to-name" placeholder="" value="">
           </div>
 
           <div class="form-group">
             <label for="rcpt-amount">金額</label>
-            <input type="number" id="rcpt-amount" value="55000" placeholder="">
+            <input type="number" id="rcpt-amount" value="" placeholder="">
           </div>
 
           <div class="form-group">
             <label for="rcpt-proviso">但し書き「として」の前段 (但)</label>
-            <input type="text" id="rcpt-proviso" value="SNS運用コンサルティング料" placeholder="">
+            <input type="text" id="rcpt-proviso" value="" placeholder="">
           </div>
 
           <div class="form-group">
             <label for="rcpt-subject">件名</label>
-            <input type="text" id="rcpt-subject" placeholder="" value="SNS運用コンサルティング料">
+            <input type="text" id="rcpt-subject" placeholder="" value="">
           </div>
 
           <fieldset class="form-fieldset">
@@ -237,7 +237,7 @@
               <!-- Payer Row -->
               <div class="payer-row-clean mt-6">
                 <div class="payer-left-clean">
-                  <span id="view-inv-to-name" class="payer-name">山田太郎</span>
+                  <span id="view-inv-to-name" class="payer-name"></span>
                   <span class="payer-honorific">様</span>
                 </div>
               </div>
@@ -249,7 +249,7 @@
               <!-- Grand Total Amount Row -->
               <div class="grand-total-row-clean mt-4">
                 <span class="total-label-clean">合計金額</span>
-                <span class="total-val-clean">¥<span id="view-inv-grand-total">350,000</span></span>
+                <span class="total-val-clean">¥<span id="view-inv-grand-total">0</span></span>
               </div>
 
               <!-- Invoice Details Items Table -->
@@ -275,11 +275,11 @@
               <div class="totals-block-clean mt-4">
                 <div class="totals-row-clean">
                   <span>内訳</span>
-                  <span>¥<span id="view-inv-subtotal-val">350,000</span></span>
+                  <span>¥<span id="view-inv-subtotal-val">0</span></span>
                 </div>
                 <div class="totals-row-clean total-grand-line">
                   <span>合計金額</span>
-                  <span class="val-bold">¥<span id="view-inv-grand-total-bottom">350,000</span></span>
+                  <span class="val-bold">¥<span id="view-inv-grand-total-bottom">0</span></span>
                 </div>
               </div>
 
@@ -336,7 +336,7 @@
               <!-- Payer Row -->
               <div class="payer-row-clean mt-6">
                 <div class="payer-left-clean">
-                  <span id="view-rcpt-to-name" class="payer-name">佐々木 里桜</span>
+                  <span id="view-rcpt-to-name" class="payer-name"></span>
                   <span class="payer-honorific">様</span>
                 </div>
               </div>
@@ -348,12 +348,12 @@
               <!-- Grand Total Amount Row -->
               <div class="grand-total-row-clean mt-4">
                 <span class="total-label-clean">領収金額</span>
-                <span class="total-val-clean"><span id="view-rcpt-amount">¥55,000-</span></span>
+                <span class="total-val-clean"><span id="view-rcpt-amount">¥0-</span></span>
               </div>
 
               <div class="proviso-row-clean mt-4">
                 <span>但し</span>
-                <span id="view-rcpt-proviso" class="rcpt-proviso-val">SNS運用コンサルティング料</span>
+                <span id="view-rcpt-proviso" class="rcpt-proviso-val"></span>
                 <span>として</span>
               </div>
 
@@ -369,8 +369,8 @@
                   </thead>
                   <tbody>
                     <tr>
-                      <td id="view-rcpt-subject">SNS運用コンサルティング料</td>
-                      <td id="view-rcpt-breakdown-amount">¥55,000</td>
+                      <td id="view-rcpt-subject"></td>
+                      <td id="view-rcpt-breakdown-amount">¥0</td>
                     </tr>
                   </tbody>
                 </table>
