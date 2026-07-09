@@ -20,6 +20,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const element = document.getElementById('a4-sheet');
     if (!element) return;
 
+    // 現在のスクロール位置を保存し、最上部(0,0)へ強制移動（スクロール起因のズレ・見切れ防止）
+    const originalScrollX = window.scrollX || window.pageXOffset || 0;
+    const originalScrollY = window.scrollY || window.pageYOffset || 0;
+    window.scrollTo(0, 0);
+
     // ファイル名：宛名「様」＋書類種別＋日付
     const mode = document.querySelector('input[name="doc-mode"]:checked')?.value || 'invoice';
     const toName = (mode === 'invoice'
@@ -41,7 +46,9 @@ document.addEventListener('DOMContentLoaded', () => {
         useCORS: true, 
         allowTaint: true,
         letterRendering: true,
-        logging: true
+        logging: true,
+        scrollX: 0, // スクロールによるキャプチャズレ（下寄り）を防止
+        scrollY: 0
       },
       jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
       pagebreak:    { mode: 'avoid-all' } // 予期しない自動改ページをすべて禁止する
@@ -68,6 +75,9 @@ document.addEventListener('DOMContentLoaded', () => {
         console.error('PDF generation failed:', e);
         showToast('PDF の生成に失敗しました。');
       } finally {
+        // スクロール位置を元に戻す
+        window.scrollTo(originalScrollX, originalScrollY);
+
         // ローディング非表示 & クラス除去
         if (overlay) overlay.classList.remove('active');
         document.body.classList.remove('pdf-generating');
