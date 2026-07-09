@@ -62,21 +62,22 @@ document.addEventListener('DOMContentLoaded', () => {
     if (overlay) overlay.classList.add('active');
     document.body.classList.add('pdf-generating');
 
-    // 以前のA4スタイル強制ロジックも念のためインラインで適用
+    // A4スタイル強制ロジックをインラインで適用（左上0から正確に描画する）
     element.style.transform  = 'none';
     element.style.position   = 'fixed';
-    element.style.left       = '50%';
-    element.style.top        = '50%';
-    element.style.transform  = 'translate(-50%, -50%)';
+    element.style.left       = '0';
+    element.style.top        = '0';
     element.style.width      = '210mm';
-    element.style.height     = '296.8mm';
-    element.style.minHeight  = '296.8mm';
+    element.style.height     = '297mm';
+    element.style.minHeight  = '297mm';
+    element.style.maxHeight  = '297mm';
     element.style.padding    = '20mm';
     element.style.boxSizing  = 'border-box';
     element.style.backgroundColor = '#ffffff';
     element.style.boxShadow  = 'none';
     element.style.border     = 'none';
     element.style.margin     = '0';
+    element.style.overflow   = 'hidden';
 
     // iOS/Safariが完全にレンダリング(再描画)を終えるのを確実に待つ (350ms)
     setTimeout(async () => {
@@ -101,6 +102,8 @@ document.addEventListener('DOMContentLoaded', () => {
         element.style.backgroundColor = originalBgColor;
         element.style.left       = '';
         element.style.top        = '';
+        element.style.maxHeight  = '';
+        element.style.overflow   = '';
 
         // ローディング非表示 & クラス除去
         if (overlay) overlay.classList.remove('active');
