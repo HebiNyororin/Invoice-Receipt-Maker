@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const mode = document.querySelector('input[name="doc-mode"]:checked')?.value || 'invoice';
     const toName = (mode === 'invoice'
       ? document.getElementById('inv-to-name')?.value
-      : document.getElementById('rec-to-name')?.value) || '宛名なし';
+      : document.getElementById('rcpt-to-name')?.value) || '宛名なし';
     
     // ファイル名に「様」を付与（ただし宛名なしの場合は「宛名なし」）
     const formattedToName = toName && toName !== '宛名なし' ? `${toName}様` : '宛名なし';

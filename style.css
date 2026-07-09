@@ -1895,6 +1895,7 @@ body.pdf-generating #a4-sheet {
   box-shadow: none !important;
   border: none !important;
   margin: 0 auto !important;
+  margin-top: 0 !important; /* 上寄せに固定 */
   overflow: hidden !important;
 }
 
@@ -1906,6 +1907,11 @@ body.pdf-generating .preview-panel {
   max-height: none !important;
   overflow: visible !important;
   background: #ffffff !important;
+  padding-top: 0 !important; /* 縦方向のズレ（下寄り）をリセット */
+  padding-bottom: 0 !important;
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  display: block !important; /* フレックス寄せを無効化 */
 }
 
 body.pdf-generating .preview-scroll-wrapper {
@@ -1913,6 +1919,8 @@ body.pdf-generating .preview-scroll-wrapper {
   overflow: visible !important;
   height: auto !important;
   width: auto !important;
+  margin-top: 0 !important;
+  padding-top: 0 !important;
 }
 
 /* PDF生成中（A4サイズ制限下）のみ、各要素の余白を少しタイトにして1ページに確実に収める */
