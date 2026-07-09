@@ -868,7 +868,10 @@ function showToast(message) {
   function startTimer() {
     dismissTimer = setTimeout(() => {
       toast.classList.add('toast-fadeout');
-      toast.addEventListener('transitionend', () => toast.remove());
+      // Ensure element removal after the 300ms fade transition ends
+      setTimeout(() => {
+        toast.remove();
+      }, 300);
     }, 2000);
   }
   
