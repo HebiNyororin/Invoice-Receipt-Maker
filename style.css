@@ -1883,6 +1883,34 @@ body {
 }
 
 /* 📄 PDF出力中のスタイル強制（自動改ページやサイズ崩れの防止） */
+body.pdf-generating,
+body.pdf-generating html {
+  height: auto !important;
+  min-height: auto !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+body.pdf-generating #app-container,
+body.pdf-generating .workspace-container {
+  display: block !important;
+  height: auto !important;
+  min-height: auto !important;
+  max-height: none !important;
+  overflow: visible !important;
+  position: relative !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+/* 不要な編集UI・ヘッダーをPDF生成時だけ一時的に完全に隠して表示領域をリセットする */
+body.pdf-generating .control-panel,
+body.pdf-generating .app-header,
+body.pdf-generating #mobile-action-bar,
+body.pdf-generating .toast-container {
+  display: none !important;
+}
+
 body.pdf-generating #a4-sheet {
   transform: none !important;
   width: 210mm !important;
