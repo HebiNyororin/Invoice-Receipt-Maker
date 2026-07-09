@@ -1882,12 +1882,9 @@ body {
   font-weight: 600;
 }
 
-/* 📄 PDF出力中の等倍・A4最前面配置強制スタイル（iOS/Safariで描画省略させないための設計） */
+/* 📄 PDF出力中のスタイル強制（自動改ページやサイズ崩れの防止） */
 body.pdf-generating #a4-sheet {
   transform: none !important;
-  position: fixed !important;
-  left: 0 !important;
-  top: 0 !important;
   width: 210mm !important;
   height: 297mm !important;
   min-height: 297mm !important;
@@ -1897,16 +1894,25 @@ body.pdf-generating #a4-sheet {
   background-color: #ffffff !important;
   box-shadow: none !important;
   border: none !important;
-  z-index: 9999998 !important; /* ローディングオーバーレイのすぐ裏 */
-  margin: 0 !important;
+  margin: 0 auto !important;
   overflow: hidden !important;
 }
 
-body.pdf-generating .workspace-container,
-body.pdf-generating .control-panel,
+/* スマホ表示時の親要素の幅や高さの制限を解除してはみ出しを許可する */
 body.pdf-generating .preview-panel {
-  overflow: visible !important;
+  position: static !important;
+  width: auto !important;
+  height: auto !important;
   max-height: none !important;
+  overflow: visible !important;
+  background: #ffffff !important;
+}
+
+body.pdf-generating .preview-scroll-wrapper {
+  display: block !important;
+  overflow: visible !important;
+  height: auto !important;
+  width: auto !important;
 }
 
 /* PDF生成中（A4サイズ制限下）のみ、各要素の余白を少しタイトにして1ページに確実に収める */
