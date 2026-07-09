@@ -230,6 +230,10 @@ body {
   color: white;
 }
 
+.mob-br {
+  display: none;
+}
+
 .header-actions {
   display: flex;
   align-items: center;
@@ -1498,8 +1502,13 @@ body {
   }
 
   .header-content h1 {
-    font-size: 1.05rem !important;
+    font-size: 0.82rem !important;
+    line-height: 1.15 !important;
     letter-spacing: 0.02em !important;
+  }
+
+  .mob-br {
+    display: block !important;
   }
 
   /* Mode selector compact */
