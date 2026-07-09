@@ -19,7 +19,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // アクティブなプレビュー要素を取得
     const mode = document.querySelector('input[name="doc-mode"]:checked')?.value || 'invoice';
     const previewId = mode === 'invoice' ? 'invoice-preview' : 'receipt-preview';
-    const element = document.getElementById(previewId);
+    const parentElement = document.getElementById(previewId);
+    if (!parentElement) return;
+
+    // 余白を除いた純粋な中身のコンテンツ要素を取得
+    const element = parentElement.querySelector('.doc-preview-content');
     if (!element) return;
 
     // ファイル名：宛名＋書類種別＋日付
@@ -31,7 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const filename = `${toName}_${docLabel}_${dateStr}.pdf`;
 
     const opt = {
-      margin:       0,
+      margin:       20, // A4用紙の四方に正確に 20mm の余白を設ける
       filename:     filename,
       image:        { type: 'jpeg', quality: 0.98 },
       html2canvas:  { 
@@ -46,10 +50,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     showToast('PDF を生成中...');
     
-    // 一時的にPDF出力用スタイルを適用して、画面内の実要素を等倍A4+美しい20mm余白に固定
+    // 一時的に等倍化クラスを適用（スマホでの scale 影響をリセットするため）
     document.body.classList.add('pdf-exporting');
 
-    // ブラウザが等倍レイアウトを再描画するのを確実に待つ (150ms)
+    // レンダリング更新を待つ
     setTimeout(async () => {
       try {
         await html2pdf().set(opt).from(element).save();
@@ -58,7 +62,6 @@ document.addEventListener('DOMContentLoaded', () => {
         console.error('PDF generation failed:', e);
         showToast('PDF の生成に失敗しました。');
       } finally {
-        // 元のスマホ表示に戻す
         document.body.classList.remove('pdf-exporting');
       }
     }, 150);
