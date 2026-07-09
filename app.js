@@ -46,8 +46,8 @@ document.addEventListener('DOMContentLoaded', () => {
             clonedSheet.style.transform  = 'none';
             clonedSheet.style.position   = 'relative';
             clonedSheet.style.width      = '210mm';
-            clonedSheet.style.height     = '297mm';
-            clonedSheet.style.minHeight  = '297mm';
+            clonedSheet.style.height     = '296.8mm'; // 2ページ目へのはみ出しを防ぐためごく僅かに小さく設定
+            clonedSheet.style.minHeight  = '296.8mm';
             clonedSheet.style.padding    = '20mm';
             clonedSheet.style.boxSizing  = 'border-box';
             clonedSheet.style.backgroundColor = '#ffffff';
@@ -57,7 +57,8 @@ document.addEventListener('DOMContentLoaded', () => {
           }
         }
       },
-      jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
+      pagebreak:    { mode: 'avoid-all' } // 予期しない自動改ページをすべて禁止する
     };
 
     showToast('PDF を生成中...');
