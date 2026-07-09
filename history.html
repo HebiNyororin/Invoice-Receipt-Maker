@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>発行履歴一覧 - できたラボ Compass</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&family=Noto+Sans+JP:wght@300;400;500;700&family=Noto+Serif+JP:wght@300;400;600&display=swap" rel="stylesheet">
+
+  <style>
+    @font-face {
+      font-family: 'HarenosoraMincho';
+      src: url('https://cdn.leafscape.be/Harenosora/harenosora_web.woff2') format('woff2');
+    }
+
+    :root {
+      --color-green: #4a533a;
+      --color-gold: #bca17c;
+      --color-cream: #ffebd6;
+      --ui-bg-light: #fdfbf7;
+      --ui-text-dark: #2d2f2b;
+      --ui-text-light: #696c66;
+      --font-serif: 'HarenosoraMincho', 'Noto Serif JP', serif;
+      --font-ui: 'Inter', 'Noto Sans JP', sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font-ui);
+      background: linear-gradient(135deg, #fdf6ec, #faebd7);
+      color: var(--ui-text-dark);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .app-header {
+      background: white;
+      padding: 1rem 2rem;
+      box-shadow: 0 4px 20px rgba(0,0,0,.03);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid var(--color-cream);
+    }
+    .header-logo { display: flex; align-items: center; gap: .5rem; }
+    .logo-compass { font-family: var(--font-serif); font-size: 1.5rem; font-weight: bold; color: var(--color-green); }
+    .logo-divider { color: #ddd; }
+    .logo-sub { font-size: .85rem; color: var(--ui-text-light); letter-spacing: .05em; }
+    .header-actions { display: flex; gap: .5rem; }
+
+    .btn {
+      padding: .5rem 1rem; border-radius: 6px; font-size: .82rem; font-weight: 600;
+      cursor: pointer; text-decoration: none; transition: all .2s ease;
+      display: inline-flex; align-items: center; gap: .35rem; border: none;
+    }
+    .btn-secondary { background: white; color: var(--ui-text-dark); border: 1px solid #ccc; }
+    .btn-secondary:hover { background: #f5f5f5; }
+    .btn-danger { background: transparent; color: #d32f2f; border: 1px solid #ffcdd2; }
+    .btn-danger:hover { background: #d32f2f; color: white; }
+
+    .container {
+      max-width: 1000px; width: 90%; margin: 3rem auto;
+      background: white; padding: 2.5rem; border-radius: 12px;
+      box-shadow: 0 10px 40px rgba(97,108,77,.06);
+      border: 1px solid rgba(215,209,166,.3); flex: 1;
+    }
+    .page-title {
+      font-family: var(--font-serif); font-size: 1.8rem; font-weight: normal;
+      color: var(--ui-text-dark); margin-bottom: 2rem;
+      border-bottom: 1.5px solid var(--color-gold); padding-bottom: .75rem;
+      display: flex; justify-content: space-between; align-items: flex-end;
+    }
+    .history-list-view { display: flex; flex-direction: column; gap: .85rem; margin-top: 1rem; }
+    .history-list-item {
+      background: #faf9f6; border: 1px solid rgba(215,209,166,.35);
+      border-radius: 8px; padding: 1.1rem 1.5rem;
+      display: flex; justify-content: space-between; align-items: center;
+      transition: all .2s ease;
+    }
+    .history-list-item:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(97,108,77,.07);
+      border-color: var(--color-gold); background: white;
+    }
+    .item-main-info { display: flex; align-items: center; gap: 1.5rem; }
+    .item-date-sec {
+      font-size: .88rem; font-weight: 500; color: var(--ui-text-light);
+      white-space: nowrap; border-right: 1px solid #e2ddd5;
+      padding-right: 1.5rem; width: 100px;
+    }
+    .item-recipient-sec { display: flex; align-items: center; gap: .5rem; }
+    .recipient-name-bold { font-family: var(--font-serif); font-size: 1.15rem; color: var(--ui-text-dark); }
+    .recipient-honorific { font-size: .78rem; color: var(--ui-text-light); }
+    .badge { display: inline-block; padding: .2rem .55rem; border-radius: 4px; font-size: .7rem; font-weight: bold; letter-spacing: .05em; }
+    .badge-invoice { background: var(--color-green); color: white; }
+    .badge-receipt { background: var(--color-gold); color: var(--ui-text-dark); }
+    .item-details-sec { display: flex; align-items: center; gap: 2rem; }
+    .item-serial-amount { text-align: right; }
+    .item-serial { color: var(--ui-text-light); font-size: .72rem; display: block; margin-bottom: .15rem; }
+    .item-amount { font-weight: 600; font-size: 1.15rem; }
+    .table-actions { display: flex; gap: .5rem; }
+    .btn-small { padding: .4rem .85rem; font-size: .8rem; font-weight: 600; border-radius: 6px; cursor: pointer; transition: all .15s; }
+    .btn-edit { background: transparent; color: var(--color-green); border: 1px solid var(--color-green); }
+    .btn-edit:hover { background: var(--color-green); color: white; }
+    .btn-del { background: transparent; color: #d32f2f; border: 1px solid #ffcdd2; }
+    .btn-del:hover { background: #d32f2f; color: white; border-color: #d32f2f; }
+    .empty-state { text-align: center; padding: 4rem 2rem; color: var(--ui-text-light); }
+    .empty-icon { font-size: 3rem; margin-bottom: 1rem; opacity: .5; }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(45,47,43,.6); backdrop-filter: blur(4px);
+      z-index: 10000; display: flex; justify-content: center; align-items: center;
+    }
+    .modal-card {
+      background: white; padding: 2rem; border-radius: 12px;
+      width: 90%; max-width: 500px;
+      box-shadow: 0 20px 50px rgba(0,0,0,.15); border: 1px solid var(--color-gold);
+    }
+    .modal-title { font-family: var(--font-serif); font-size: 1.25rem; color: var(--ui-text-dark); margin-bottom: .5rem; }
+    .modal-desc { font-size: .78rem; color: var(--ui-text-light); line-height: 1.5; margin-bottom: 1.25rem; }
+    .modal-actions { display: flex; justify-content: flex-end; gap: .75rem; margin-top: 1rem; }
+    .cloud-status-badge { display: inline-block; padding: .25rem .6rem; border-radius: 4px; font-size: .72rem; font-weight: bold; margin-bottom: 1.25rem; }
+    .cloud-status-badge.inactive { background: #f5f5f5; color: #777; }
+    .cloud-status-badge.active { background: #e6f4ea; color: #137333; }
+    .modal-input {
+      width: 100%; padding: .6rem .75rem; border: 1px solid #ccc; border-radius: 6px;
+      font-size: .82rem; background: #faf9f6; margin-bottom: .85rem;
+    }
+    .modal-input-mono { font-family: monospace; font-size: .75rem; resize: vertical; }
+    .modal-label { font-size: .8rem; font-weight: 600; display: block; margin-bottom: .25rem; color: var(--ui-text-dark); }
+  </style>
+
+  <!-- Auth Gate Check (supports query param ?auth=Bemine_23rd) -->
+  <script>
+    (function() {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('auth') === 'Bemine_23rd') {
+        sessionStorage.setItem('elpis_auth_token_2026', 'authenticated');
+      }
+      const authed = sessionStorage.getItem('elpis_auth_token_2026') || localStorage.getItem('elpis_auth_token_2026');
+      if (!authed) window.location.href = 'index.html';
+    })();
+  </script>
+</head>
+<body>
+
+  <header class="app-header">
+    <div class="header-logo">
+      <span class="logo-compass">Compass</span>
+      <span class="logo-divider">|</span>
+      <span class="logo-sub">発行履歴管理</span>
+    </div>
+    <div class="header-actions">
+      <button type="button" id="btn-export-history" class="btn btn-secondary">💾 履歴書出 (JSON)</button>
+      <button type="button" id="btn-import-history" class="btn btn-secondary" onclick="document.getElementById('input-import-file').click()">📂 履歴読込</button>
+      <input type="file" id="input-import-file" style="display:none;" accept=".json">
+      <button type="button" id="btn-supabase-settings" class="btn btn-secondary" style="padding:.5rem !important;" title="Supabase設定">⚙️</button>
+      <a href="index.html?auth=Bemine_23rd" class="btn btn-secondary">📄 作成画面に戻る</a>
+    </div>
+  </header>
+
+  <div class="container">
+    <h1 class="page-title">
+      <span>🕒 発行書類の履歴一覧</span>
+      <button type="button" id="btn-clear-all" class="btn btn-danger" style="font-size:.8rem;padding:.4rem .8rem;">🗑️ すべて消去</button>
+    </h1>
+    <div class="history-list-view" id="history-list-view"></div>
+    <div id="empty-view" class="empty-state" style="display:none;">
+      <div class="empty-icon">🕒</div>
+      <p>発行済みの書類履歴はまだありません。</p>
+      <p style="font-size:.8rem;margin-top:.5rem;">作成画面で履歴に保存した書類がここに表示されます。</p>
+    </div>
+  </div>
+
+  <!-- Supabase Settings Modal -->
+  <div id="supabase-modal" class="modal-overlay" style="display:none;">
+    <div class="modal-card">
+      <h3 class="modal-title">⚙️ Supabase クラウド同期設定</h3>
+      <p class="modal-desc">
+        Supabase の Project URL と API Anon Key を入力してください。<br>
+        設定後、PC・スマートフォン間で履歴が自動同期されます。
+      </p>
+      <label class="modal-label">Project URL</label>
+      <input type="text" id="supabase-url-input" class="modal-input" placeholder="https://xxxx.supabase.co">
+      <label class="modal-label">API Anon Key</label>
+      <textarea id="supabase-key-input" class="modal-input modal-input-mono" rows="4" placeholder="eyJhbGciOi..."></textarea>
+      <div id="supabase-status" class="cloud-status-badge inactive">未設定</div>
+      <div class="modal-actions">
+        <button type="button" id="btn-supabase-save" style="background:var(--color-green);color:white;border:none;padding:.5rem 1rem;border-radius:6px;cursor:pointer;font-weight:600;">保存する</button>
+        <button type="button" id="btn-supabase-close" style="border:1px solid #ccc;padding:.5rem 1rem;border-radius:6px;cursor:pointer;font-weight:500;background:white;">閉じる</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+
+    // ── Constants ─────────────────────────────────────────────────
+    const HISTORY_KEY = 'dekitalab_document_history_logs_2026';
+    const SB_URL_KEY  = 'dekitalab_supabase_url';
+    const SB_KEY_KEY  = 'dekitalab_supabase_key';
+
+    // ── Supabase client ───────────────────────────────────────────
+    let supabase = null;
+
+    function initSupabase() {
+      const url   = localStorage.getItem(SB_URL_KEY);
+      const key   = localStorage.getItem(SB_KEY_KEY);
+      const badge = document.getElementById('supabase-status');
+
+      if (url && key) {
+        try {
+          supabase = createClient(url, key);
+          if (badge) { badge.textContent = '接続完了 (Supabase同期中)'; badge.className = 'cloud-status-badge active'; }
+        } catch(e) {
+          console.error('Supabase init failed:', e);
+          if (badge) { badge.textContent = '設定エラー'; badge.className = 'cloud-status-badge inactive'; }
+        }
+      } else {
+        if (badge) { badge.textContent = '未設定 (ローカル保存のみ)'; badge.className = 'cloud-status-badge inactive'; }
+      }
+    }
+
+    // ── Helpers ───────────────────────────────────────────────────
+    function getLocal() {
+      const d = localStorage.getItem(HISTORY_KEY);
+      return d ? JSON.parse(d) : [];
+    }
+
+    function setLocal(list) {
+      localStorage.setItem(HISTORY_KEY, JSON.stringify(list));
+    }
+
+    async function fetchRemote() {
+      if (!supabase) return null;
+      try {
+        const { data, error } = await supabase.from('history').select('*');
+        if (error) throw error;
+        return data;
+      } catch(e) { console.error('Supabase fetch:', e); return null; }
+    }
+
+    async function upsertRemote(doc) {
+      if (!supabase) return;
+      try {
+        const { error } = await supabase.from('history').upsert(doc, { onConflict: 'id' });
+        if (error) throw error;
+      } catch(e) { console.error('Supabase upsert:', e); }
+    }
+
+    async function deleteRemote(id) {
+      if (!supabase) return;
+      try {
+        const { error } = await supabase.from('history').delete().eq('id', id);
+        if (error) throw error;
+      } catch(e) { console.error('Supabase delete:', e); }
+    }
+
+    async function clearRemote() {
+      if (!supabase) return;
+      try {
+        const { error } = await supabase.from('history').delete().gte('id', 0);
+        if (error) throw error;
+      } catch(e) { console.error('Supabase clear:', e); }
+    }
+
+    // ── Render ────────────────────────────────────────────────────
+    function render() {
+      const list      = getLocal().sort((a, b) => b.id - a.id);
+      const container = document.getElementById('history-list-view');
+      const empty     = document.getElementById('empty-view');
+
+      if (!list.length) {
+        container.innerHTML = '';
+        empty.style.display = 'block';
+        return;
+      }
+      empty.style.display = 'none';
+      container.innerHTML = list.map(item => `
+        <div class="history-list-item">
+          <div class="item-main-info">
+            <div class="item-date-sec">${item.date ? item.date.replace(/-/g, '.') : '----.--.--'}</div>
+            <div class="item-recipient-sec">
+              <span class="recipient-name-bold">${item.toName || '宛名未入力'}</span>
+              <span class="recipient-honorific">御中 / 様</span>
+              <span class="badge ${item.type === 'invoice' ? 'badge-invoice' : 'badge-receipt'}" style="margin-left:.5rem;">
+                ${item.type === 'invoice' ? '請求書' : '領収書'}
+              </span>
+            </div>
+          </div>
+          <div class="item-details-sec">
+            <div class="item-serial-amount">
+              <span class="item-serial">No: ${item.number}</span>
+              <span class="item-amount">¥${parseInt(item.amount, 10).toLocaleString()}</span>
+            </div>
+            <div class="table-actions">
+              <button type="button" class="btn-small btn-edit" onclick="loadItem(${item.id})">編集</button>
+              <button type="button" class="btn-small btn-del" onclick="deleteItem(${item.id})">削除</button>
+            </div>
+          </div>
+        </div>`).join('');
+    }
+
+    // ── Actions ───────────────────────────────────────────────────
+    function loadItem(id) {
+      window.location.href = `index.html?auth=Bemine_23rd&load_id=${id}`;
+    }
+
+    async function deleteItem(id) {
+      if (!confirm('この履歴を削除してもよろしいですか？')) return;
+      setLocal(getLocal().filter(i => i.id !== id));
+      render();
+      await deleteRemote(id);
+    }
+
+    window.loadItem = loadItem;
+    window.deleteItem = deleteItem;
+
+    // ── Export / Import ───────────────────────────────────────────
+    document.getElementById('btn-export-history').addEventListener('click', () => {
+      const list = getLocal();
+      if (!list.length) { alert('出力する履歴がありません。'); return; }
+      const a = Object.assign(document.createElement('a'), {
+        href: 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(list, null, 2)),
+        download: `compass_history_${new Date().toISOString().slice(0,10)}.json`
+      });
+      a.click();
+    });
+
+    document.getElementById('input-import-file').addEventListener('change', e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = async ({ target }) => {
+        try {
+          const imported = JSON.parse(target.result);
+          if (!Array.isArray(imported)) { alert('無効なファイルです。'); return; }
+          if (!confirm(`${imported.length} 件をインポート（マージ）しますか？`)) return;
+          const map = new Map(getLocal().map(i => [i.id, i]));
+          imported.filter(i => i.id && i.type && i.number).forEach(i => map.set(i.id, i));
+          const merged = Array.from(map.values());
+          setLocal(merged);
+          render();
+          // Upsert each into Supabase
+          for (const doc of merged) await upsertRemote(doc);
+          alert('インポートしました！');
+        } catch { alert('ファイルの解析に失敗しました。'); }
+      };
+      reader.readAsText(file);
+    });
+
+    document.getElementById('btn-clear-all').addEventListener('click', async () => {
+      if (!confirm('すべての発行履歴を消去しますか？この操作は取り消せません。')) return;
+      setLocal([]);
+      render();
+      await clearRemote();
+    });
+
+    // ── Supabase Settings Modal ───────────────────────────────────
+    const modal    = document.getElementById('supabase-modal');
+    const urlInput = document.getElementById('supabase-url-input');
+    const keyInput = document.getElementById('supabase-key-input');
+
+    document.getElementById('btn-supabase-settings').addEventListener('click', () => {
+      urlInput.value = localStorage.getItem(SB_URL_KEY) || '';
+      keyInput.value = localStorage.getItem(SB_KEY_KEY) || '';
+      initSupabase(); // refresh badge
+      modal.style.display = 'flex';
+    });
+
+    document.getElementById('btn-supabase-close').addEventListener('click', () => {
+      modal.style.display = 'none';
+    });
+
+    document.getElementById('btn-supabase-save').addEventListener('click', async () => {
+      const url = urlInput.value.trim();
+      const key = keyInput.value.trim();
+
+      if (!url || !key) {
+        localStorage.removeItem(SB_URL_KEY);
+        localStorage.removeItem(SB_KEY_KEY);
+        supabase = null;
+        initSupabase();
+        alert('設定を消去しました。ローカル保存のみで動作します。');
+        modal.style.display = 'none';
+        return;
+      }
+      if (!url.startsWith('https://')) { alert('Project URL は https:// で始まる必要があります。'); return; }
+
+      localStorage.setItem(SB_URL_KEY, url);
+      localStorage.setItem(SB_KEY_KEY, key);
+      initSupabase();
+
+      const remote = await fetchRemote();
+      if (remote !== null) {
+        setLocal(remote);
+        render();
+      }
+      alert('Supabase の設定を保存しました！\n履歴をクラウドから同期しました。');
+      modal.style.display = 'none';
+    });
+
+    // ── Init ──────────────────────────────────────────────────────
+    window.addEventListener('DOMContentLoaded', async () => {
+      initSupabase();
+      const remote = await fetchRemote();
+      if (remote !== null) {
+        // Merge: remote wins for conflicts
+        const map = new Map(getLocal().map(i => [i.id, i]));
+        remote.forEach(i => map.set(i.id, i));
+        setLocal(Array.from(map.values()));
+      }
+      render();
+    });
+  </script>
+</body>
+</html>

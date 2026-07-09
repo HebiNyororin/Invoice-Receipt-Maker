@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>請求書・領収書ジェネレーター</title>
+  <link rel="stylesheet" href="style.css">
+  <!-- Google Fonts for premium typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&family=Noto+Serif+JP:wght@400;700&family=Shippori+Mincho:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- Password Protection Overlay -->
+  <div id="password-overlay" class="password-overlay">
+    <div class="password-card">
+      <div class="password-header">
+        <span class="password-icon">🔐</span>
+        <h2>認証が必要です</h2>
+        <p>このツールはプライベート保護されています。</p>
+      </div>
+      <form id="password-form" onsubmit="event.preventDefault(); checkPassword();">
+        <div class="form-group">
+          <label for="password-input">パスワード</label>
+          <input type="password" id="password-input" placeholder="パスワードを入力してください" required autocomplete="current-password">
+        </div>
+        <div class="checkbox-group">
+          <input type="checkbox" id="remember-me">
+          <label for="remember-me">ログイン状態を保持する</label>
+        </div>
+        <button type="submit" class="btn-primary">ログイン</button>
+        <p id="password-error" class="error-text" style="display: none;">パスワードが正しくありません。</p>
+      </form>
+    </div>
+  </div>
+
+  <!-- Main Application Workspace -->
+  <div id="app-container" style="display: none;">
+    <!-- Top Bar with Mode Selection -->
+    <header class="app-header">
+      <div class="header-content">
+        <h1 style="font-family: var(--font-serif); font-size: 1.45rem; color: var(--color-green); font-weight: bold; letter-spacing: 0.05em;">Compass</h1>
+        <div class="doc-mode-selector">
+          <label class="mode-radio-label">
+            <input type="radio" name="doc-mode" value="invoice" checked>
+            <span class="mode-btn">請求書</span>
+          </label>
+          <label class="mode-radio-label">
+            <input type="radio" name="doc-mode" value="receipt">
+            <span class="mode-btn">領収書</span>
+          </label>
+        </div>
+        <div class="header-actions">
+          <button type="button" id="btn-save-doc" class="btn-h-save">💾 履歴に保存</button>
+          <button type="button" id="btn-print" class="btn-h-print">🖨️ 印刷・PDF書き出し</button>
+          <button type="button" id="btn-history-page" class="btn-h-history" onclick="window.location.href='history.html?auth=Bemine_23rd'">🕒 過去ログ</button>
+          <button type="button" id="btn-supabase-settings" class="btn-h-history" style="padding: 0.5rem !important;" title="Supabase設定">⚙️</button>
+          <button type="button" id="btn-logout" class="btn-h-logout">ログアウト</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="workspace-container">
+      <!-- Control Panel (Left Column) -->
+      <aside class="control-panel">
+        
+        <!-- Print Tips Box -->
+        <div class="print-instruction-box">
+          <p class="instruction-title">💡 PDF出力のポイント</p>
+          <ul>
+            <li>送信先を<strong>「PDFに保存」</strong>にする</li>
+            <li>マージン（余白）を<strong>「なし」</strong>にする</li>
+            <li>オプションの<strong>「背景のグラフィック」</strong>をONにする</li>
+          </ul>
+        </div>
+        
+        <!-- INVOICE CONTROLS -->
+        <div id="controls-invoice" class="controls-section">
+          <h2 class="panel-title">📝 請求書設定</h2>
+          
+          <div class="form-group">
+            <label for="inv-title">タイトル</label>
+            <input type="text" id="inv-title" value="請求書">
+          </div>
+
+          <div class="form-group">
+            <label for="inv-number">請求書番号</label>
+            <input type="text" id="inv-number" value="INV-2026-001" placeholder="請求書番号">
+          </div>
+
+          <div class="form-group">
+            <label for="inv-date">請求日</label>
+            <input type="date" id="inv-date">
+          </div>
+
+          <div class="form-group">
+            <label for="inv-due-date">支払期日</label>
+            <input type="date" id="inv-due-date">
+          </div>
+
+          <div class="form-group">
+            <label for="inv-to-name">宛名（様）</label>
+            <input type="text" id="inv-to-name" placeholder="" value="山田太郎">
+          </div>
+
+          <div class="form-group">
+            <label for="inv-subject">件名</label>
+            <input type="text" id="inv-subject" placeholder="" value="システム開発およびデザイン制作">
+          </div>
+
+          <fieldset class="form-fieldset">
+            <legend>👤 請求者情報</legend>
+            <div class="form-group">
+              <label for="inv-from-company">会社名・屋号</label>
+              <input type="text" id="inv-from-company" value="できたラボ Compass" placeholder="できたラボ Compass">
+            </div>
+            <div class="form-group">
+              <label for="inv-from-name">氏名</label>
+              <input type="text" id="inv-from-name" value="山門杏子" placeholder="山門杏子">
+            </div>
+            <div class="form-group">
+              <label for="inv-from-contact">連絡先・メール</label>
+              <input type="text" id="inv-from-contact" value="dekitalab.compass@gmail.com" placeholder="dekitalab.compass@gmail.com">
+            </div>
+            <div class="form-group">
+              <label for="inv-from-phone">電話番号</label>
+              <input type="text" id="inv-from-phone" value="070-3847-1924" placeholder="070-3847-1924">
+            </div>
+            <div class="form-group">
+              <label for="inv-from-address">住所・その他 (任意)</label>
+              <textarea id="inv-from-address" rows="2" placeholder="〒000-0000 東京都..."></textarea>
+            </div>
+          </fieldset>
+
+          <div class="form-group">
+            <h3 class="subsection-title">📦 明細表</h3>
+            <div id="invoice-items-edit-container" class="items-editor-container">
+              <!-- Item rows will be loaded dynamically here -->
+            </div>
+            <button type="button" id="btn-add-item" class="btn-secondary">+ 行を追加</button>
+          </div>
+
+          <div class="form-group">
+            <label for="inv-remarks">備考欄</label>
+            <textarea id="inv-remarks" rows="3" placeholder="振込手数料は受講者様にて負担をお願いいたします。" title="備考">振込手数料は受講者様にて負担をお願いいたします。</textarea>
+          </div>
+        </div>
+
+        <!-- RECEIPT CONTROLS -->
+        <div id="controls-receipt" class="controls-section" style="display: none;">
+          <h2 class="panel-title">📝 領収書設定</h2>
+
+          <div class="form-group">
+            <label for="rcpt-title">タイトル</label>
+            <input type="text" id="rcpt-title" value="領収書">
+          </div>
+
+          <div class="form-group">
+            <label for="rcpt-number">領収書番号 (No.)</label>
+            <input type="text" id="rcpt-number" value="0000001" placeholder="No.">
+          </div>
+
+          <div class="form-group">
+            <label for="rcpt-date">領収日</label>
+            <input type="date" id="rcpt-date">
+          </div>
+
+          <div class="form-group">
+            <label for="rcpt-to-name">宛名（様）</label>
+            <input type="text" id="rcpt-to-name" placeholder="" value="佐々木 里桜">
+          </div>
+
+          <div class="form-group">
+            <label for="rcpt-amount">金額</label>
+            <input type="number" id="rcpt-amount" value="55000" placeholder="">
+          </div>
+
+          <div class="form-group">
+            <label for="rcpt-proviso">但し書き「として」の前段 (但)</label>
+            <input type="text" id="rcpt-proviso" value="SNS運用コンサルティング料" placeholder="">
+          </div>
+
+          <div class="form-group">
+            <label for="rcpt-subject">件名</label>
+            <input type="text" id="rcpt-subject" placeholder="" value="SNS運用コンサルティング料">
+          </div>
+
+          <fieldset class="form-fieldset">
+            <legend>👤 領収者（請求者）情報</legend>
+            <div class="form-group">
+              <label for="rcpt-from-company">会社名・屋号</label>
+              <input type="text" id="rcpt-from-company" value="できたラボ Compass" placeholder="できたラボ Compass">
+            </div>
+            <div class="form-group">
+              <label for="rcpt-from-name">氏名</label>
+              <input type="text" id="rcpt-from-name" value="山門杏子" placeholder="山門杏子">
+            </div>
+            <div class="form-group">
+              <label for="rcpt-from-contact">連絡先・メール</label>
+              <input type="text" id="rcpt-from-contact" value="dekitalab.compass@gmail.com" placeholder="dekitalab.compass@gmail.com">
+            </div>
+            <div class="form-group">
+              <label for="rcpt-from-phone">電話番号</label>
+              <input type="text" id="rcpt-from-phone" value="070-3847-1924" placeholder="070-3847-1924">
+            </div>
+            <div class="form-group">
+              <label for="rcpt-from-address">住所・その他 (任意)</label>
+              <textarea id="rcpt-from-address" rows="3" placeholder="〒000-0000 東京都..."></textarea>
+            </div>
+          </fieldset>
+        </div>
+
+
+
+      </aside>
+
+      <!-- Live Preview Area (Right Column) -->
+      <section class="preview-panel">
+        <div class="preview-scroll-wrapper">
+          
+          <!-- A4 Sheet Container -->
+          <div id="a4-sheet" class="a4-sheet font-mincho">
+            
+            <!-- 1. INVOICE PREVIEW MOCKUP -->
+            <div id="invoice-preview" class="doc-preview-content">
+              <!-- Top Header Row -->
+              <div class="invoice-header-clean">
+                <div class="header-left-clean">
+                  <div class="eng-title">INVOICE</div>
+                  <h1 id="view-inv-title" class="jp-title">請求書</h1>
+                </div>
+                <div class="header-right-clean">
+                  <div>発行日 : <span id="view-inv-date">2026.07.09</span></div>
+                  <div>請求書番号 : <span id="view-inv-number">INV-2026-001</span></div>
+                </div>
+              </div>
+
+              <!-- Payer Row -->
+              <div class="payer-row-clean mt-6">
+                <div class="payer-left-clean">
+                  <span id="view-inv-to-name" class="payer-name">山田太郎</span>
+                  <span class="payer-honorific">様</span>
+                </div>
+              </div>
+              
+              <div class="lead-message-clean mt-2">
+                以下のとおりご請求申し上げます。
+              </div>
+
+              <!-- Grand Total Amount Row -->
+              <div class="grand-total-row-clean mt-4">
+                <span class="total-label-clean">合計金額</span>
+                <span class="total-val-clean">¥<span id="view-inv-grand-total">350,000</span></span>
+              </div>
+
+              <!-- Invoice Details Items Table -->
+              <div class="items-table-container mt-6">
+                <table class="preview-items-table-clean">
+                  <thead>
+                    <tr>
+                      <th class="col-desc">摘要</th>
+                      <th class="col-date">取引日</th>
+                      <th class="col-qty">数量</th>
+                      <th class="col-unit">単位</th>
+                      <th class="col-price">単価</th>
+                      <th class="col-total">金額</th>
+                    </tr>
+                  </thead>
+                  <tbody id="view-inv-items-body">
+                    <!-- Dynamic rows will render here -->
+                  </tbody>
+                </table>
+              </div>
+
+              <!-- Subtotals Block -->
+              <div class="totals-block-clean mt-4">
+                <div class="totals-row-clean">
+                  <span>内訳</span>
+                  <span>¥<span id="view-inv-subtotal-val">350,000</span></span>
+                </div>
+                <div class="totals-row-clean total-grand-line">
+                  <span>合計金額</span>
+                  <span class="val-bold">¥<span id="view-inv-grand-total-bottom">350,000</span></span>
+                </div>
+              </div>
+
+              <!-- Bank Details Block -->
+              <div class="bank-box-clean mt-6">
+                <div class="bank-title-clean">お振込先</div>
+                <div class="bank-content-clean">
+                  GMOあおぞらネット銀行(0310) ビジネス第二支店(202) 普通預金 1034897<br>
+                  口座名義 : ヤマカド キョウコ
+                </div>
+              </div>
+              <div class="due-date-clean mt-2">
+                お振込期日 : <span id="view-inv-due-date">2026.08.31</span>
+              </div>
+
+              <!-- Remarks -->
+              <div class="remarks-container-clean mt-6">
+                <div class="remarks-title-clean">備考</div>
+                <div id="view-inv-remarks" class="remarks-content-clean">振込手数料は受講者様にて負担をお願いいたします。</div>
+              </div>
+
+              <!-- Footer Issuer -->
+              <div class="footer-issuer-clean mt-8">
+                <div class="issuer-left-clean">
+                  <div id="view-inv-from-company" class="issuer-company-name">できたラボ Compass</div>
+                </div>
+                <div class="issuer-right-clean">
+                  <div>[代表者] <span id="view-inv-from-name">山門杏子</span></div>
+                  <div>[メール] <span id="view-inv-from-contact">dekitalab.compass@gmail.com</span></div>
+                  <div>[電話番号] <span id="view-inv-from-phone">070-3847-1924</span></div>
+                  <div id="view-inv-from-address-row" style="display: none;">[所在地] <span id="view-inv-from-address"></span></div>
+                </div>
+              </div>
+
+              <div class="page-footer">
+                <span>1 / 1</span>
+              </div>
+            </div>
+
+            <!-- 2. RECEIPT PREVIEW MOCKUP -->
+            <div id="receipt-preview" class="doc-preview-content" style="display: none;">
+              <!-- Top Header Row -->
+              <div class="invoice-header-clean">
+                <div class="header-left-clean">
+                  <div class="eng-title">RECEIPT</div>
+                  <h1 id="view-rcpt-title" class="jp-title">領収書</h1>
+                </div>
+                <div class="header-right-clean">
+                  <div>発行日 : <span id="view-rcpt-date">2030.10.30</span></div>
+                  <div>No. : <span id="view-rcpt-number">0000001</span></div>
+                </div>
+              </div>
+
+              <!-- Payer Row -->
+              <div class="payer-row-clean mt-6">
+                <div class="payer-left-clean">
+                  <span id="view-rcpt-to-name" class="payer-name">佐々木 里桜</span>
+                  <span class="payer-honorific">様</span>
+                </div>
+              </div>
+              
+              <div class="lead-message-clean mt-2">
+                上記正に領収いたしました。
+              </div>
+
+              <!-- Grand Total Amount Row -->
+              <div class="grand-total-row-clean mt-4">
+                <span class="total-label-clean">領収金額</span>
+                <span class="total-val-clean"><span id="view-rcpt-amount">¥55,000-</span></span>
+              </div>
+
+              <div class="proviso-row-clean mt-4">
+                <span>但し</span>
+                <span id="view-rcpt-proviso" class="rcpt-proviso-val">SNS運用コンサルティング料</span>
+                <span>として</span>
+              </div>
+
+              <!-- Internal Details Table -->
+              <div class="receipt-breakdown-container-clean mt-6">
+                <div class="receipt-breakdown-title-clean">(内訳)</div>
+                <table class="receipt-breakdown-table-clean">
+                  <thead>
+                    <tr>
+                      <th>件名</th>
+                      <th>金額</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td id="view-rcpt-subject">SNS運用コンサルティング料</td>
+                      <td id="view-rcpt-breakdown-amount">¥55,000</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <!-- Footer Issuer -->
+              <div class="footer-issuer-clean mt-8">
+                <div class="issuer-left-clean">
+                  <div id="view-rcpt-from-company-bold" class="issuer-company-name">できたラボ Compass</div>
+                </div>
+                <div class="issuer-right-clean">
+                  <div>[代表者] <span id="view-rcpt-from-name-r">山門杏子</span></div>
+                  <div>[メール] <span id="view-rcpt-from-contact-r">dekitalab.compass@gmail.com</span></div>
+                  <div>[電話番号] <span id="view-rcpt-from-phone-r">070-3847-1924</span></div>
+                  <div id="view-rcpt-from-address-row-r" style="display: none;">[所在地] <span id="view-rcpt-from-address-r"></span></div>
+                </div>
+              </div>
+
+              <div class="page-footer">
+                <span>1 / 1</span>
+              </div>
+            </div>
+
+          </div> <!-- A4 Sheet End -->
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Supabase Settings Modal -->
+  <div id="supabase-modal" class="modal-overlay" style="display: none;">
+    <div class="modal-card">
+      <h3 class="modal-title">⚙️ Supabase クラウド同期設定</h3>
+      <p class="modal-desc">
+        Supabaseの接続URLとAPIキーを入力してください。<br>
+        `history`テーブルを作成しておくと、スマートフォン等と自動同期されます。
+      </p>
+      
+      <div class="form-group" style="margin-bottom: 1rem;">
+        <label style="font-size: 0.8rem; font-weight: 600; display: block; margin-bottom: 0.25rem; color: var(--ui-text-dark);">Project URL</label>
+        <input type="text" id="supabase-url-input" placeholder="https://xxxx.supabase.co" style="width: 100%; padding: 0.5rem; border: 1px solid #ccc; border-radius: 6px; font-size: 0.8rem; background-color: #faf9f6;">
+      </div>
+      
+      <div class="form-group" style="margin-bottom: 1.25rem;">
+        <label style="font-size: 0.8rem; font-weight: 600; display: block; margin-bottom: 0.25rem; color: var(--ui-text-dark);">API Anon Key</label>
+        <textarea id="supabase-key-input" rows="4" placeholder="eyJhbGciOi..." style="width: 100%; padding: 0.5rem; border: 1px solid #ccc; border-radius: 6px; font-size: 0.75rem; font-family: monospace; resize: vertical; background-color: #faf9f6;"></textarea>
+      </div>
+
+      <div id="supabase-status" class="cloud-status-badge inactive">未設定</div>
+      <div class="modal-actions">
+        <button type="button" id="btn-supabase-save" class="btn-primary" style="background-color: var(--color-green); color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; font-weight: 500;">保存する</button>
+        <button type="button" id="btn-supabase-close" class="btn-secondary" style="border: 1px solid #ccc; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; font-weight: 500;">閉じる</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast-container" class="toast-container"></div>
+  <script type="module" src="app.js"></script>
+</body>
+</html>
