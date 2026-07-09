@@ -17,33 +17,8 @@ document.addEventListener('DOMContentLoaded', () => {
     autoSaveWithoutAlert();
 
     // 元の #a4-sheet を取得
-    const originalElement = document.getElementById('a4-sheet');
-    if (!originalElement) return;
-
-    // クローンを作成して、スマホでの縮小(scale)や余計なスタイルを完全に解除する
-    const element = originalElement.cloneNode(true);
-    
-    // PDF出力用にスタイルをインラインで強制
-    element.style.transform  = 'none';
-    element.style.position   = 'fixed';
-    element.style.left       = '0';
-    element.style.top        = '0';
-    element.style.width      = '210mm';
-    element.style.height     = '297mm';
-    element.style.minHeight  = '297mm';
-    element.style.boxShadow  = 'none';
-    element.style.border     = 'none';
-    element.style.padding    = '20mm';
-    element.style.boxSizing  = 'border-box';
-    element.style.backgroundColor = '#ffffff';
-    
-    // ほぼ透明にして最背面に配置（html2canvasが正常検知できるようにしつつ画面上は見えないようにする）
-    element.style.opacity    = '0.01';
-    element.style.zIndex     = '-99999';
-    element.style.pointerEvents = 'none';
-
-    // 一時的にbodyに追加
-    document.body.appendChild(element);
+    const element = document.getElementById('a4-sheet');
+    if (!element) return;
 
     // ファイル名：宛名＋書類種別＋日付
     const mode = document.querySelector('input[name="doc-mode"]:checked')?.value || 'invoice';
@@ -63,26 +38,37 @@ document.addEventListener('DOMContentLoaded', () => {
         useCORS: true, 
         allowTaint: true,
         letterRendering: true,
-        logging: true
+        logging: true,
+        // html2pdf内部で複製されたキャプチャ用DOMのスタイルを一時的に上書きする
+        onclone: (clonedDoc) => {
+          const clonedSheet = clonedDoc.getElementById('a4-sheet');
+          if (clonedSheet) {
+            clonedSheet.style.transform  = 'none';
+            clonedSheet.style.position   = 'relative';
+            clonedSheet.style.width      = '210mm';
+            clonedSheet.style.height     = '297mm';
+            clonedSheet.style.minHeight  = '297mm';
+            clonedSheet.style.padding    = '20mm';
+            clonedSheet.style.boxSizing  = 'border-box';
+            clonedSheet.style.backgroundColor = '#ffffff';
+            clonedSheet.style.boxShadow  = 'none';
+            clonedSheet.style.border     = 'none';
+            clonedSheet.style.margin     = '0 auto';
+          }
+        }
       },
       jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
 
     showToast('PDF を生成中...');
     
-    // ブラウザが新規DOM要素を認識するのを待つ (100ms)
-    setTimeout(async () => {
-      try {
-        await html2pdf().set(opt).from(element).save();
-        showToast(`📄 ${filename} をダウンロードしました！`);
-      } catch(e) {
-        console.error('PDF generation failed:', e);
-        showToast('PDF の生成に失敗しました。');
-      } finally {
-        // クローン要素を確実に削除
-        element.remove();
-      }
-    }, 100);
+    try {
+      await html2pdf().set(opt).from(element).save();
+      showToast(`📄 ${filename} をダウンロードしました！`);
+    } catch(e) {
+      console.error('PDF generation failed:', e);
+      showToast('PDF の生成に失敗しました。');
+    }
   });
 
   // Set up logout button
