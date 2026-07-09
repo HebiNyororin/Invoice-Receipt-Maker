@@ -134,6 +134,68 @@
     }
     .modal-input-mono { font-family: monospace; font-size: .75rem; resize: vertical; }
     .modal-label { font-size: .8rem; font-weight: 600; display: block; margin-bottom: .25rem; color: var(--ui-text-dark); }
+
+    @media (max-width: 768px) {
+      .app-header {
+        padding: 0.6rem 0.75rem;
+      }
+      .logo-sub {
+        display: none;
+      }
+      .header-actions {
+        gap: 0.3rem;
+      }
+      .header-actions .btn {
+        padding: 0.45rem 0.6rem !important;
+        min-width: 36px;
+        height: 36px;
+        justify-content: center;
+        align-items: center;
+      }
+      .header-actions .btn-text {
+        display: none !important;
+      }
+      .header-actions .btn-icon {
+        font-size: 1.1rem !important;
+        margin: 0 !important;
+        display: inline-block;
+      }
+      .container {
+        padding: 1.25rem;
+        margin: 1.5rem auto;
+      }
+      .page-title {
+        font-size: 1.4rem;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+      }
+      .history-list-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+        padding: 1rem;
+      }
+      .item-main-info {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+        width: 100%;
+      }
+      .item-date-sec {
+        border-right: none;
+        padding-right: 0;
+        width: auto;
+      }
+      .item-details-sec {
+        justify-content: space-between;
+        width: 100%;
+        gap: 1rem;
+      }
+      .item-serial-amount {
+        text-align: left;
+      }
+    }
   </style>
 
   <!-- Auth Gate Check (supports query param ?auth=Bemine_23rd) -->
@@ -157,11 +219,11 @@
       <span class="logo-sub">発行履歴管理</span>
     </div>
     <div class="header-actions">
-      <button type="button" id="btn-export-history" class="btn btn-secondary">💾 履歴書出 (JSON)</button>
-      <button type="button" id="btn-import-history" class="btn btn-secondary" onclick="document.getElementById('input-import-file').click()">📂 履歴読込</button>
+      <button type="button" id="btn-export-history" class="btn btn-secondary"><span class="btn-icon">💾</span><span class="btn-text">履歴書出 (JSON)</span></button>
+      <button type="button" id="btn-import-history" class="btn btn-secondary" onclick="document.getElementById('input-import-file').click()"><span class="btn-icon">📂</span><span class="btn-text">履歴読込</span></button>
       <input type="file" id="input-import-file" style="display:none;" accept=".json">
-      <button type="button" id="btn-supabase-settings" class="btn btn-secondary" style="padding:.5rem !important;" title="Supabase設定">⚙️</button>
-      <a href="index.html?auth=Bemine_23rd" class="btn btn-secondary">📄 作成画面に戻る</a>
+      <button type="button" id="btn-supabase-settings" class="btn btn-secondary" style="padding:.5rem !important;" title="Supabase設定"><span class="btn-icon">⚙️</span></button>
+      <a href="index.html?auth=Bemine_23rd" class="btn btn-secondary"><span class="btn-icon">📄</span><span class="btn-text">作成画面に戻る</span></a>
     </div>
   </header>
 

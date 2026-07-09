@@ -19,8 +19,29 @@ document.addEventListener('DOMContentLoaded', () => {
     // アクティブなプレビュー要素を取得
     const mode = document.querySelector('input[name="doc-mode"]:checked')?.value || 'invoice';
     const previewId = mode === 'invoice' ? 'invoice-preview' : 'receipt-preview';
-    const element = document.getElementById(previewId);
-    if (!element) return;
+    const originalElement = document.getElementById(previewId);
+    if (!originalElement) return;
+
+    // クローンを作成して、スマホでの縮小(scale)や余計なスタイルを解除する
+    const element = originalElement.cloneNode(true);
+    element.style.transform = 'none';
+    element.style.margin = '0';
+    element.style.position = 'absolute';
+    element.style.left = '-9999px';
+    element.style.top = '-9999px';
+    element.style.width = '210mm';
+    element.style.height = '297mm';
+    element.style.minHeight = '297mm';
+    element.style.boxShadow = 'none';
+    element.style.border = 'none';
+    element.style.boxSizing = 'border-box';
+    element.style.padding = '20mm';
+    element.style.backgroundColor = '#ffffff';
+    element.style.display = 'flex';
+    element.style.flexDirection = 'column';
+    
+    // 一時的にbodyに追加
+    document.body.appendChild(element);
 
     // ファイル名：宛名＋書類種別＋日付
     const toName = (mode === 'invoice'
@@ -34,7 +55,13 @@ document.addEventListener('DOMContentLoaded', () => {
       margin:       0,
       filename:     filename,
       image:        { type: 'jpeg', quality: 0.98 },
-      html2canvas:  { scale: 2, useCORS: true, letterRendering: true },
+      html2canvas:  { 
+        scale: 2, 
+        useCORS: true, 
+        letterRendering: true,
+        scrollX: 0,
+        scrollY: 0
+      },
       jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
 
@@ -45,6 +72,9 @@ document.addEventListener('DOMContentLoaded', () => {
     } catch(e) {
       console.error('PDF generation failed:', e);
       showToast('PDF の生成に失敗しました。');
+    } finally {
+      // クローンを削除
+      element.remove();
     }
   });
 
@@ -841,11 +871,26 @@ function showToast(message) {
   `;
   container.appendChild(toast);
   
-  // Auto-remove after 3 seconds
-  setTimeout(() => {
-    toast.classList.add('toast-fadeout');
-    toast.addEventListener('transitionend', () => toast.remove());
-  }, 3000);
+  let dismissTimer = null;
+  
+  function startTimer() {
+    dismissTimer = setTimeout(() => {
+      toast.classList.add('toast-fadeout');
+      toast.addEventListener('transitionend', () => toast.remove());
+    }, 2000);
+  }
+  
+  function stopTimer() {
+    if (dismissTimer) {
+      clearTimeout(dismissTimer);
+      dismissTimer = null;
+    }
+  }
+  
+  toast.addEventListener('mouseenter', stopTimer);
+  toast.addEventListener('mouseleave', startTimer);
+  
+  startTimer();
 }
 
 // ── Supabase integration ─────────────────────────────────────────
