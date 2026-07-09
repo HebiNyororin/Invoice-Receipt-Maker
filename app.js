@@ -12,10 +12,40 @@ document.addEventListener('DOMContentLoaded', () => {
   setupInvoiceItems();
   setDefaultDates();
   
-  // Set up print button with auto-history save
-  document.getElementById('btn-print').addEventListener('click', () => {
+  // PDF ダウンロードボタン
+  document.getElementById('btn-print').addEventListener('click', async () => {
     autoSaveWithoutAlert();
-    window.print();
+
+    // アクティブなプレビュー要素を取得
+    const mode = document.querySelector('input[name="doc-mode"]:checked')?.value || 'invoice';
+    const previewId = mode === 'invoice' ? 'invoice-preview' : 'receipt-preview';
+    const element = document.getElementById(previewId);
+    if (!element) return;
+
+    // ファイル名：宛名＋書類種別＋日付
+    const toName = (mode === 'invoice'
+      ? document.getElementById('inv-to-name')?.value
+      : document.getElementById('rec-to-name')?.value) || '宛名なし';
+    const docLabel = mode === 'invoice' ? '請求書' : '領収書';
+    const dateStr  = new Date().toISOString().slice(0, 10);
+    const filename = `${toName}_${docLabel}_${dateStr}.pdf`;
+
+    const opt = {
+      margin:       0,
+      filename:     filename,
+      image:        { type: 'jpeg', quality: 0.98 },
+      html2canvas:  { scale: 2, useCORS: true, letterRendering: true },
+      jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+
+    showToast('PDF を生成中...');
+    try {
+      await html2pdf().set(opt).from(element).save();
+      showToast(`📄 ${filename} をダウンロードしました！`);
+    } catch(e) {
+      console.error('PDF generation failed:', e);
+      showToast('PDF の生成に失敗しました。');
+    }
   });
 
   // Set up logout button

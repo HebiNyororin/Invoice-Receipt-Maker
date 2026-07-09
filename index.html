@@ -53,7 +53,7 @@
         </div>
         <div class="header-actions">
           <button type="button" id="btn-save-doc" class="btn-h-save">💾 履歴に保存</button>
-          <button type="button" id="btn-print" class="btn-h-print">🖨️ 印刷・PDF書き出し</button>
+          <button type="button" id="btn-print" class="btn-h-print">📄 PDFダウンロード</button>
           <button type="button" id="btn-history-page" class="btn-h-history" onclick="window.location.href='history.html?auth=Bemine_23rd'">🕒 過去ログ</button>
           <button type="button" id="btn-supabase-settings" class="btn-h-history" style="padding: 0.5rem !important;" title="Supabase設定">⚙️</button>
           <button type="button" id="btn-logout" class="btn-h-logout">ログアウト</button>
@@ -65,15 +65,7 @@
       <!-- Control Panel (Left Column) -->
       <aside class="control-panel">
         
-        <!-- Print Tips Box -->
-        <div class="print-instruction-box">
-          <p class="instruction-title">💡 PDF出力のポイント</p>
-          <ul>
-            <li>送信先を<strong>「PDFに保存」</strong>にする</li>
-            <li>マージン（余白）を<strong>「なし」</strong>にする</li>
-            <li>オプションの<strong>「背景のグラフィック」</strong>をONにする</li>
-          </ul>
-        </div>
+
         
         <!-- INVOICE CONTROLS -->
         <div id="controls-invoice" class="controls-section">
@@ -430,6 +422,7 @@
   </div>
 
   <div id="toast-container" class="toast-container"></div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <script type="module" src="app.js"></script>
 </body>
 </html>
