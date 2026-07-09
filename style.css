@@ -1497,6 +1497,11 @@ body {
     flex-wrap: wrap;
   }
 
+  .header-content h1 {
+    font-size: 1.05rem !important;
+    letter-spacing: 0.02em !important;
+  }
+
   /* Mode selector compact */
   .doc-mode-selector {
     order: -1;
