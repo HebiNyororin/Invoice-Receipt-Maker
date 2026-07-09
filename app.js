@@ -37,7 +37,9 @@ document.addEventListener('DOMContentLoaded', () => {
       html2canvas:  { 
         scale: 2, 
         useCORS: true, 
-        letterRendering: true
+        allowTaint: true,
+        letterRendering: true,
+        logging: true
       },
       jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
@@ -47,16 +49,19 @@ document.addEventListener('DOMContentLoaded', () => {
     // 一時的にPDF出力用スタイルを適用して、画面内の実要素を等倍A4+美しい20mm余白に固定
     document.body.classList.add('pdf-exporting');
 
-    try {
-      await html2pdf().set(opt).from(element).save();
-      showToast(`📄 ${filename} をダウンロードしました！`);
-    } catch(e) {
-      console.error('PDF generation failed:', e);
-      showToast('PDF の生成に失敗しました。');
-    } finally {
-      // 元のスマホ表示に戻す
-      document.body.classList.remove('pdf-exporting');
-    }
+    // ブラウザが等倍レイアウトを再描画するのを確実に待つ (150ms)
+    setTimeout(async () => {
+      try {
+        await html2pdf().set(opt).from(element).save();
+        showToast(`📄 ${filename} をダウンロードしました！`);
+      } catch(e) {
+        console.error('PDF generation failed:', e);
+        showToast('PDF の生成に失敗しました。');
+      } finally {
+        // 元のスマホ表示に戻す
+        document.body.classList.remove('pdf-exporting');
+      }
+    }, 150);
   });
 
   // Set up logout button
