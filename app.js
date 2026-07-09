@@ -33,19 +33,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const originalBoxSizing  = element.style.boxSizing;
     const originalBgColor    = element.style.backgroundColor;
 
-    // PDF出力用に一時的に等倍・A4サイズ・綺麗な余白をインラインで強制
-    element.style.transform  = 'none';
-    element.style.position   = 'relative';
-    element.style.width      = '210mm';
-    element.style.height     = '296.8mm'; // 2ページ目へのはみ出しを防ぐためごく僅かに小さく設定
-    element.style.minHeight  = '296.8mm';
-    element.style.padding    = '20mm';
-    element.style.boxSizing  = 'border-box';
-    element.style.backgroundColor = '#ffffff';
-    element.style.boxShadow  = 'none';
-    element.style.border     = 'none';
-    element.style.margin     = '0 auto';
-
     // ファイル名：宛名＋書類種別＋日付
     const mode = document.querySelector('input[name="doc-mode"]:checked')?.value || 'invoice';
     const toName = (mode === 'invoice'
@@ -70,9 +57,28 @@ document.addEventListener('DOMContentLoaded', () => {
       pagebreak:    { mode: 'avoid-all' } // 予期しない自動改ページをすべて禁止する
     };
 
-    showToast('PDF を生成中...');
-    
-    // ブラウザが等倍スタイルを確実に再描画するのを待つ (200ms)
+    // フル画面ローディングを起動して、背後に等倍A4を配置 (iOSの描画最適化をダミー表示で回避)
+    const overlay = document.getElementById('pdf-loading-overlay');
+    if (overlay) overlay.classList.add('active');
+    document.body.classList.add('pdf-generating');
+
+    // 以前のA4スタイル強制ロジックも念のためインラインで適用
+    element.style.transform  = 'none';
+    element.style.position   = 'fixed';
+    element.style.left       = '50%';
+    element.style.top        = '50%';
+    element.style.transform  = 'translate(-50%, -50%)';
+    element.style.width      = '210mm';
+    element.style.height     = '296.8mm';
+    element.style.minHeight  = '296.8mm';
+    element.style.padding    = '20mm';
+    element.style.boxSizing  = 'border-box';
+    element.style.backgroundColor = '#ffffff';
+    element.style.boxShadow  = 'none';
+    element.style.border     = 'none';
+    element.style.margin     = '0';
+
+    // iOS/Safariが完全にレンダリング(再描画)を終えるのを確実に待つ (350ms)
     setTimeout(async () => {
       try {
         await html2pdf().set(opt).from(element).save();
@@ -93,8 +99,14 @@ document.addEventListener('DOMContentLoaded', () => {
         element.style.padding    = originalPadding;
         element.style.boxSizing  = originalBoxSizing;
         element.style.backgroundColor = originalBgColor;
+        element.style.left       = '';
+        element.style.top        = '';
+
+        // ローディング非表示 & クラス除去
+        if (overlay) overlay.classList.remove('active');
+        document.body.classList.remove('pdf-generating');
       }
-    }, 200);
+    }, 350);
   });
 
   // Set up logout button
