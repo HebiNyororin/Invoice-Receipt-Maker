@@ -90,7 +90,7 @@
     .item-date-sec {
       font-size: .88rem; font-weight: 500; color: var(--ui-text-light);
       white-space: nowrap; border-right: 1px solid #e2ddd5;
-      padding-right: 1.5rem; width: 100px;
+      padding-right: 1.5rem; width: 160px;
     }
     .item-recipient-sec { display: flex; align-items: center; gap: .5rem; }
     .recipient-name-bold { font-family: var(--font-serif); font-size: 1.15rem; color: var(--ui-text-dark); }
@@ -344,6 +344,18 @@
     }
 
     // ── Render ────────────────────────────────────────────────────
+    function formatTimestamp(ms) {
+      const d = new Date(ms);
+      if (isNaN(d.getTime())) return '----.--.-- --:--:--';
+      const yyyy = d.getFullYear();
+      const mm = String(d.getMonth() + 1).padStart(2, '0');
+      const dd = String(d.getDate()).padStart(2, '0');
+      const hh = String(d.getHours()).padStart(2, '0');
+      const min = String(d.getMinutes()).padStart(2, '0');
+      const ss = String(d.getSeconds()).padStart(2, '0');
+      return `${yyyy}.${mm}.${dd} ${hh}:${min}:${ss}`;
+    }
+
     function render() {
       const list      = getLocal().sort((a, b) => b.id - a.id);
       const container = document.getElementById('history-list-view');
@@ -358,7 +370,7 @@
       container.innerHTML = list.map(item => `
         <div class="history-list-item">
           <div class="item-main-info">
-            <div class="item-date-sec">${item.date ? item.date.replace(/-/g, '.') : '----.--.--'}</div>
+            <div class="item-date-sec">${formatTimestamp(item.id)}</div>
             <div class="item-recipient-sec">
               <span class="recipient-name-bold">${item.toName || '宛名未入力'}</span>
               <span class="recipient-honorific">御中 / 様</span>

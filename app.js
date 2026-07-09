@@ -17,8 +17,8 @@ document.addEventListener('DOMContentLoaded', () => {
     autoSaveWithoutAlert();
 
     // 元の #a4-sheet を取得
-    const originalElement = document.getElementById('a4-sheet');
-    if (!originalElement) return;
+    const element = document.getElementById('a4-sheet');
+    if (!element) return;
 
     // ファイル名：宛名＋書類種別＋日付
     const mode = document.querySelector('input[name="doc-mode"]:checked')?.value || 'invoice';
@@ -49,14 +49,24 @@ document.addEventListener('DOMContentLoaded', () => {
     if (overlay) overlay.classList.add('active');
     document.body.classList.add('pdf-generating');
 
-    // キャプチャ用に一時的なクローンを作成
-    const element = originalElement.cloneNode(true);
-    
-    // A4スタイルを強制（最前面に配置して他の要素（ローディング画面など）による遮蔽を避ける）
+    // 現在の元のインラインスタイルを保存
+    const originalTransform  = element.style.transform;
+    const originalPosition   = element.style.position;
+    const originalMargin     = element.style.margin;
+    const originalBoxShadow  = element.style.boxShadow;
+    const originalBorder     = element.style.border;
+    const originalWidth      = element.style.width;
+    const originalHeight     = element.style.height;
+    const originalMinHeight  = element.style.minHeight;
+    const originalPadding    = element.style.padding;
+    const originalBoxSizing  = element.style.boxSizing;
+    const originalBgColor    = element.style.backgroundColor;
+    const originalOverflow   = element.style.overflow;
+    const originalMaxHeight  = element.style.maxHeight;
+
+    // PDF生成用に一時的にスタイルをインラインで強制（等倍・A4・はみ出し不可・位置ズレ防止）
     element.style.transform  = 'none';
-    element.style.position   = 'fixed';
-    element.style.left       = '0';
-    element.style.top        = '0';
+    element.style.position   = 'relative';
     element.style.width      = '210mm';
     element.style.height     = '297mm';
     element.style.minHeight  = '297mm';
@@ -66,14 +76,10 @@ document.addEventListener('DOMContentLoaded', () => {
     element.style.backgroundColor = '#ffffff';
     element.style.boxShadow  = 'none';
     element.style.border     = 'none';
-    element.style.margin     = '0';
+    element.style.margin     = '0 auto';
     element.style.overflow   = 'hidden';
-    element.style.zIndex     = '10000000'; // ローディングオーバーレイ (9999999) よりさらに前面
 
-    // bodyに追加
-    document.body.appendChild(element);
-
-    // ブラウザがDOMに追加されたクローンを完全にレンダリングするのを待つ (200ms)
+    // ブラウザが再描画するのを確実に待つ (350ms)
     setTimeout(async () => {
       try {
         await html2pdf().set(opt).from(element).save();
@@ -82,8 +88,20 @@ document.addEventListener('DOMContentLoaded', () => {
         console.error('PDF generation failed:', e);
         showToast('PDF の生成に失敗しました。');
       } finally {
-        // クローン要素を確実に削除
-        element.remove();
+        // 元のスタイルに戻す
+        element.style.transform  = originalTransform;
+        element.style.position   = originalPosition;
+        element.style.margin     = originalMargin;
+        element.style.boxShadow  = originalBoxShadow;
+        element.style.border     = originalBorder;
+        element.style.width      = originalWidth;
+        element.style.height     = originalHeight;
+        element.style.minHeight  = originalMinHeight;
+        element.style.padding    = originalPadding;
+        element.style.boxSizing  = originalBoxSizing;
+        element.style.backgroundColor = originalBgColor;
+        element.style.overflow   = originalOverflow;
+        element.style.maxHeight  = originalMaxHeight;
 
         // ローディング非表示 & クラス除去
         if (overlay) overlay.classList.remove('active');
