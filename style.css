@@ -1854,15 +1854,3 @@ body.pdf-exporting .preview-scroll-wrapper {
   height: auto !important;
   display: block !important;
 }
-
-/* PDF出力中のコンテンツサイズを A4 用紙余白 20mm の内側（170mm x 257mm）に完全固定 */
-body.pdf-exporting .doc-preview-content {
-  width: 170mm !important;
-  height: 257mm !important;
-  min-height: 257mm !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  box-sizing: border-box !important;
-  display: flex !important;
-  flex-direction: column !important;
-}

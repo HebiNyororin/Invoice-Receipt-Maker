@@ -16,14 +16,8 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('btn-print').addEventListener('click', async () => {
     autoSaveWithoutAlert();
 
-    // アクティブなプレビュー要素を取得
-    const mode = document.querySelector('input[name="doc-mode"]:checked')?.value || 'invoice';
-    const previewId = mode === 'invoice' ? 'invoice-preview' : 'receipt-preview';
-    const parentElement = document.getElementById(previewId);
-    if (!parentElement) return;
-
-    // 余白を除いた純粋な中身のコンテンツ要素を取得
-    const element = parentElement.querySelector('.doc-preview-content');
+    // アクティブなプレビュー要素（#a4-sheet自体）を取得
+    const element = document.getElementById('a4-sheet');
     if (!element) return;
 
     // ファイル名：宛名＋書類種別＋日付
@@ -35,7 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const filename = `${toName}_${docLabel}_${dateStr}.pdf`;
 
     const opt = {
-      margin:       20, // A4用紙の四方に正確に 20mm の余白を設ける
+      margin:       0, // a4-sheet自身が持つ padding: 20mm を活用するため、html2pdf側の余白は0に設定
       filename:     filename,
       image:        { type: 'jpeg', quality: 0.98 },
       html2canvas:  { 
