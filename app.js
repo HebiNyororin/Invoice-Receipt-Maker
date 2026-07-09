@@ -914,8 +914,19 @@ function showToast(message) {
 let supabase = null;
 
 function initSupabase() {
-  const url   = localStorage.getItem('dekitalab_supabase_url');
-  const key   = localStorage.getItem('dekitalab_supabase_key');
+  let url = localStorage.getItem('dekitalab_supabase_url');
+  let key = localStorage.getItem('dekitalab_supabase_key');
+  
+  // デバイス間で共有するために、デフォルトのSupabase設定（フォールバック）を埋め込む
+  if (!url || !key) {
+    url = 'https://jinoazwcmikcoduhecpv.supabase.co';
+    key = 'sb_publishable_Pk4-L3V0j1aC90gv4KM0GQ_hRDegdQu';
+    
+    // 次回からの読み込みを高速化するためlocalStorageにもキャッシュしておく
+    localStorage.setItem('dekitalab_supabase_url', url);
+    localStorage.setItem('dekitalab_supabase_key', key);
+  }
+  
   const badge = document.getElementById('supabase-status');
   if (url && key) {
     try {

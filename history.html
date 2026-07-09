@@ -272,8 +272,19 @@
     let supabase = null;
 
     function initSupabase() {
-      const url   = localStorage.getItem(SB_URL_KEY);
-      const key   = localStorage.getItem(SB_KEY_KEY);
+      let url = localStorage.getItem(SB_URL_KEY);
+      let key = localStorage.getItem(SB_KEY_KEY);
+
+      // デバイス間で共有するために、デフォルトのSupabase設定（フォールバック）を埋め込む
+      if (!url || !key) {
+        url = 'https://jinoazwcmikcoduhecpv.supabase.co';
+        key = 'sb_publishable_Pk4-L3V0j1aC90gv4KM0GQ_hRDegdQu';
+
+        // 次回からの読み込みを高速化するためlocalStorageにもキャッシュしておく
+        localStorage.setItem(SB_URL_KEY, url);
+        localStorage.setItem(SB_KEY_KEY, key);
+      }
+
       const badge = document.getElementById('supabase-status');
 
       if (url && key) {
