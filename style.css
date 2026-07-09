@@ -1823,34 +1823,4 @@ body {
   to { transform: scale(1); opacity: 1; }
 }
 
-/* PDF出力中の一時スタイル強制（PC/スマホ共通で等倍A4・美しい余白を維持） */
-body.pdf-exporting .a4-sheet {
-  transform: none !important;
-  position: relative !important;
-  width: 210mm !important;
-  height: 297mm !important;
-  min-height: 297mm !important;
-  padding: 20mm !important;
-  margin: 0 auto !important;
-  box-shadow: none !important;
-  border: none !important;
-  box-sizing: border-box !important;
-  background-color: #ffffff !important;
-  display: flex !important;
-  flex-direction: column !important;
-  top: 0 !important;
-  left: 0 !important;
-}
 
-/* PDF出力中は、親要素のスクロール制限や縮小用ラッパーの影響を受けないようにする */
-body.pdf-exporting .preview-panel {
-  overflow: visible !important;
-  height: auto !important;
-  max-height: none !important;
-  background: transparent !important;
-}
-body.pdf-exporting .preview-scroll-wrapper {
-  overflow: visible !important;
-  height: auto !important;
-  display: block !important;
-}

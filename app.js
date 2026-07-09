@@ -16,11 +16,37 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('btn-print').addEventListener('click', async () => {
     autoSaveWithoutAlert();
 
-    // アクティブなプレビュー要素（#a4-sheet自体）を取得
-    const element = document.getElementById('a4-sheet');
-    if (!element) return;
+    // 元の #a4-sheet を取得
+    const originalElement = document.getElementById('a4-sheet');
+    if (!originalElement) return;
+
+    // クローンを作成して、スマホでの縮小(scale)や余計なスタイルを完全に解除する
+    const element = originalElement.cloneNode(true);
+    
+    // PDF出力用にスタイルをインラインで強制
+    element.style.transform  = 'none';
+    element.style.position   = 'fixed';
+    element.style.left       = '0';
+    element.style.top        = '0';
+    element.style.width      = '210mm';
+    element.style.height     = '297mm';
+    element.style.minHeight  = '297mm';
+    element.style.boxShadow  = 'none';
+    element.style.border     = 'none';
+    element.style.padding    = '20mm';
+    element.style.boxSizing  = 'border-box';
+    element.style.backgroundColor = '#ffffff';
+    
+    // ほぼ透明にして最背面に配置（html2canvasが正常検知できるようにしつつ画面上は見えないようにする）
+    element.style.opacity    = '0.01';
+    element.style.zIndex     = '-99999';
+    element.style.pointerEvents = 'none';
+
+    // 一時的にbodyに追加
+    document.body.appendChild(element);
 
     // ファイル名：宛名＋書類種別＋日付
+    const mode = document.querySelector('input[name="doc-mode"]:checked')?.value || 'invoice';
     const toName = (mode === 'invoice'
       ? document.getElementById('inv-to-name')?.value
       : document.getElementById('rec-to-name')?.value) || '宛名なし';
@@ -29,7 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const filename = `${toName}_${docLabel}_${dateStr}.pdf`;
 
     const opt = {
-      margin:       0, // a4-sheet自身が持つ padding: 20mm を活用するため、html2pdf側の余白は0に設定
+      margin:       0, // a4-sheet自身が持つ padding: 20mm を使うため0に設定
       filename:     filename,
       image:        { type: 'jpeg', quality: 0.98 },
       html2canvas:  { 
@@ -44,10 +70,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     showToast('PDF を生成中...');
     
-    // 一時的に等倍化クラスを適用（スマホでの scale 影響をリセットするため）
-    document.body.classList.add('pdf-exporting');
-
-    // レンダリング更新を待つ
+    // ブラウザが新規DOM要素を認識するのを待つ (100ms)
     setTimeout(async () => {
       try {
         await html2pdf().set(opt).from(element).save();
@@ -56,9 +79,10 @@ document.addEventListener('DOMContentLoaded', () => {
         console.error('PDF generation failed:', e);
         showToast('PDF の生成に失敗しました。');
       } finally {
-        document.body.classList.remove('pdf-exporting');
+        // クローン要素を確実に削除
+        element.remove();
       }
-    }, 150);
+    }, 100);
   });
 
   // Set up logout button
